@@ -1,0 +1,104 @@
+{% extends 'dashboard/dashboard.html' %}
+{% load static %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="form-card">
+        <h2>Edit Article</h2>
+        <div style="margin-bottom:18px;">
+            <h3 style="margin-bottom:8px;">Current Article Preview</h3>
+            <div class="prose" style="background:#ffffff;padding:16px;border-radius:8px;border:1px solid #e5e7eb;">
+                {% if article.featured_image %}
+                    <img src="{{ article.featured_image.url }}" alt="{{ article.title }}" style="max-width:100%; height:auto; border-radius:6px; margin-bottom:12px;" />
+                {% endif %}
+                <h4 style="margin-top:0;">{{ article.title }}</h4>
+                <article class="article-preview">{{ article.content|safe }}</article>
+            </div>
+        </div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Article ID</label>
+                    <input type="text" name="article_id" value="{{ article.article_id }}" readonly disabled class="" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Title</label>
+                    {{ form.title }}
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select name="category" id="id_category">
+                        <option value="">Select category</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.pk }}" {% if article.category and article.category.pk == cat.pk %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Status</label>
+                    {{ form.status }}
+                </div>
+                <div class="form-group">
+                    <label>Published At</label>
+                    {{ form.published_at }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Content</label>
+                {{ form.content }}
+            </div>
+            <div class="form-group">
+                <label>Featured Image</label>
+                {% if article.featured_image %}
+                    <div style="margin-bottom:8px;">
+                        <img id="currentImagePreview" src="{{ article.featured_image.url }}" alt="Current image" style="max-width:220px; height:auto; border-radius:6px; display:block; margin-bottom:6px; cursor:pointer;" />
+                        <label style="display:inline-flex; align-items:center; gap:8px; font-size:14px;"><input type="checkbox" name="remove_image" value="1"> Remove current image</label>
+                    </div>
+                {% endif %}
+                <div>
+                    <input type="file" name="featured_image" id="id_featured_image" accept="image/*">
+                    <div id="selectedFileName" style="margin-top:6px;font-size:13px;color:#374151;"></div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                <a href="{% url 'DashboardAdmin:view_article' article.slug %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+    {% block extra_scripts %}
+    <script>
+    // Click preview to open file dialog
+    const currentPreview = document.getElementById('currentImagePreview');
+    const fileInput = document.getElementById('id_featured_image');
+    const fileNameEl = document.getElementById('selectedFileName');
+    if (currentPreview && fileInput) {
+        currentPreview.addEventListener('click', () => fileInput.click());
+    }
+    if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+            const f = e.target.files[0];
+            if (!f) {
+                fileNameEl.textContent = '';
+                return;
+            }
+            fileNameEl.textContent = `Selected: ${f.name}`;
+            // show live preview
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                if (currentPreview) currentPreview.src = ev.target.result;
+            };
+            reader.readAsDataURL(f);
+        });
+    }
+    </script>
+    {% endblock %}

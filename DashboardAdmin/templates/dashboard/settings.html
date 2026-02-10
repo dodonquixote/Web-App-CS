@@ -1,0 +1,248 @@
+{% extends "dashboard/dashboard.html" %}
+{% load static %}
+
+{% block content %}
+<div class="form-card" style="max-width:800px;">
+    <h2>Site Settings</h2>
+    {% comment %} Toast notifications removed per request. {% endcomment %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_spotify_link">Spotify Playlist URL</label>
+            <div class="flex items-center gap-3">
+                {{ form.spotify_link }}
+                <button type="submit" name="save_spotify" value="1" class="btn btn-primary">Save Spotify</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="id_youtube_link">YouTube Embed URL</label>
+            <div class="flex items-center gap-3">
+                {{ form.youtube_link }}
+                <button type="submit" name="save_youtube" value="1" class="btn btn-primary">Save YouTube</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="id_youtube_desc">YouTube Video Description</label>
+            <div class="flex items-center gap-3">
+                {{ form.youtube_desc }}
+                <div class="flex items-center gap-2">
+                    <button type="button" id="fetch-desc-btn" class="btn btn-secondary">Fetch from YouTube</button>
+                    <button type="submit" name="save_youtube_desc" value="1" class="btn btn-primary">Save Description</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="id_vote_link">Vote Link</label>
+            <div class="flex items-center gap-3">
+                {{ form.vote_link }}
+                <button type="submit" name="save_vote_link" value="1" class="btn btn-primary">Save Vote Link</button>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Link users will be redirected to when they click "Ikut voting" on the homepage.</p>
+        </div>
+        <!-- <hr class="my-4">
+        <h3>Translation (LibreTranslate)</h3> -->
+        <!-- <div class="form-group">
+            <label for="id_translate_api_url">Translate API URL</label>
+            <div class="flex items-center gap-3">
+                {{ form.translate_api_url }}
+                <button type="submit" name="save_translate" value="1" class="btn btn-primary">Save Translate</button>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Example: http://127.0.0.1:5000/translate (leave empty to use default)</p>
+        </div>
+        <div class="form-group">
+            <label for="id_translate_api_key">Translate API Key (optional)</label>
+            <div class="flex items-center gap-3">
+                {{ form.translate_api_key }}
+            </div>
+            <p class="text-xs text-gray-500 mt-1">If your LibreTranslate is protected with an API key, paste it here.</p>
+        </div> -->
+        <hr class="my-4">
+        <h3>Site Ads</h3>
+        
+        <!-- Left Ad -->
+        <div class="form-group">
+            <label for="id_ad_left" class="font-semibold">Left Ad Image</label>
+            {% if form.instance.ad_left %}
+                <div class="mb-3 p-4 bg-gray-50 rounded border">
+                    <img src="{{ form.instance.ad_left.url }}" alt="left ad" class="max-h-32 mb-2 border rounded">
+                    <button type="submit" name="remove_ad_left" value="1" class="btn btn-danger btn-sm">Remove Image</button>
+                </div>
+            {% endif %}
+            <div class="mb-2">
+                <label class="text-sm text-gray-600">Upload New Image:</label>
+                {{ form.ad_left }}
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Ad Link URL:</label>
+                {{ form.ad_left_link }}
+            </div>
+        </div>
+
+        <!-- Right Ad -->
+        <div class="form-group">
+            <label for="id_ad_right" class="font-semibold">Right Ad Image</label>
+            {% if form.instance.ad_right %}
+                <div class="mb-3 p-4 bg-gray-50 rounded border">
+                    <img src="{{ form.instance.ad_right.url }}" alt="right ad" class="max-h-32 mb-2 border rounded">
+                    <button type="submit" name="remove_ad_right" value="1" class="btn btn-danger btn-sm">Remove Image</button>
+                </div>
+            {% endif %}
+            <div class="mb-2">
+                <label class="text-sm text-gray-600">Upload New Image:</label>
+                {{ form.ad_right }}
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Ad Link URL:</label>
+                {{ form.ad_right_link }}
+            </div>
+        </div>
+
+        <!-- Top Ad -->
+        <div class="form-group">
+            <label for="id_ad_top" class="font-semibold">Top Ad Image</label>
+            {% if form.instance.ad_top %}
+                <div class="mb-3 p-4 bg-gray-50 rounded border">
+                    <img src="{{ form.instance.ad_top.url }}" alt="top ad" class="max-h-32 mb-2 border rounded">
+                    <button type="submit" name="remove_ad_top" value="1" class="btn btn-danger btn-sm">Remove Image</button>
+                </div>
+            {% endif %}
+            <div class="mb-2">
+                <label class="text-sm text-gray-600">Upload New Image:</label>
+                {{ form.ad_top }}
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Ad Link URL:</label>
+                {{ form.ad_top_link }}
+            </div>
+        </div>
+
+        <!-- Bottom Ad -->
+        <div class="form-group">
+            <label for="id_ad_down" class="font-semibold">Bottom Ad Image</label>
+            {% if form.instance.ad_down %}
+                <div class="mb-3 p-4 bg-gray-50 rounded border">
+                    <img src="{{ form.instance.ad_down.url }}" alt="bottom ad" class="max-h-32 mb-2 border rounded">
+                    <button type="submit" name="remove_ad_down" value="1" class="btn btn-danger btn-sm">Remove Image</button>
+                </div>
+            {% endif %}
+            <div class="mb-2">
+                <label class="text-sm text-gray-600">Upload New Image:</label>
+                {{ form.ad_down }}
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Ad Link URL:</label>
+                {{ form.ad_down_link }}
+            </div>
+        </div>
+
+        <div class="form-group mt-4">
+            <button type="submit" name="save_ads" value="1" class="btn btn-primary">Save Ads</button>
+        </div>
+        <!-- <div class="form-actions">
+            <a href="{% url 'DashboardAdmin:index' %}" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
+        </div> -->
+    </form>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const btn = document.getElementById('fetch-desc-btn');
+    if(!btn) return;
+    btn.addEventListener('click', async () => {
+        const linkInput = document.getElementById('id_youtube_link');
+        const descField = document.getElementById('id_youtube_desc');
+        const youtube_link = linkInput ? linkInput.value.trim() : '';
+        if(!youtube_link){ alert('Please enter YouTube link or ID first.'); return; }
+        btn.disabled = true; btn.innerText = 'Fetching...';
+        try{
+            const resp = await fetch('{% url "DashboardAdmin:fetch_youtube_desc" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': (document.querySelector('[name=csrfmiddlewaretoken]').value),
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({ youtube_link })
+            });
+            const j = await resp.json();
+            if(j.success){
+                // Use plain text from server
+                let plain = j.desc || '';
+                
+                // Convert single newlines to <br> and double newlines to paragraphs
+                // Split by double newlines first for paragraphs
+                const paragraphs = plain.split(/\n\n+/).filter(p => p.trim());
+                
+                // Convert each paragraph's single newlines to <br>
+                let html = paragraphs.map(para => {
+                    const lines = para.split('\n').filter(l => l.trim());
+                    return '<p>' + lines.join('<br>') + '</p>';
+                }).join('\n');
+                
+                if (!html) html = plain ? '<p>' + plain.replace(/\n/g, '<br>') + '</p>' : '';
+
+                // If TinyMCE is active, set formatted HTML for editing/preview.
+                try{
+                    if(window.tinymce && tinymce.get('id_youtube_desc')){
+                        tinymce.get('id_youtube_desc').setContent(html || plain || '');
+                    } else if(descField) {
+                        // No rich editor: keep textarea as plain text so saved value remains clean.
+                        descField.value = plain || '';
+                    }
+                }catch(e){
+                    if(descField) descField.value = plain || '';
+                }
+                alert('Description fetched and formatted for editor. Review then click Save Description.');
+            } else {
+                alert('Failed: ' + (j.error || 'Unknown error'));
+            }
+        }catch(e){
+            alert('Request failed: ' + e);
+        }finally{
+            btn.disabled = false; btn.innerText = 'Fetch from YouTube';
+        }
+    });
+});
+</script>
+<!-- TinyMCE: rich editor for YouTube description -->
+<script src="https://cdn.tiny.cloud/1/37zufs6d4pqe7v1wy8zwih4e77fjidegb5ac36c696z8qnm7/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    try{
+        tinymce.init({
+            selector: '#id_youtube_desc',
+            menubar: false,
+            plugins: 'link paste lists autolink',
+            toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | link',
+            height: 220,
+            branding: false,
+            paste_as_text: false,
+            default_link_target: '_blank',
+            rel_list: [{ title: 'noopener noreferrer', value: 'noopener noreferrer' }],
+            content_style: 'body { font-family: Poppins, sans-serif; font-size:14px }',
+            setup: function(editor){
+                // When editor initializes, convert plaintext newlines to HTML paragraphs
+                editor.on('init', function(){
+                    const textarea = document.querySelector('#id_youtube_desc');
+                    if(textarea && textarea.value){
+                        // Convert plaintext with newlines back to formatted HTML
+                        let content = textarea.value;
+                        // Split by double newlines for paragraphs
+                        const paragraphs = content.split(/\n\n+/).filter(p => p.trim());
+                        let html = paragraphs.map(para => {
+                            // Single newlines within paragraph become <br>
+                            const lines = para.split('\n').filter(l => l.trim());
+                            return '<p>' + lines.join('<br>') + '</p>';
+                        }).join('\n');
+                        if(html) editor.setContent(html);
+                    }
+                });
+                // Ensure the underlying textarea gets updated before form submit
+                editor.on('change keyup', function(){
+                    editor.save();
+                });
+            }
+        });
+    }catch(e){ console.warn('TinyMCE init failed', e); }
+});
+</script>
+{% endblock %}

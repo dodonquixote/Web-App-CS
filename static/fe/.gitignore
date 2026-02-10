@@ -1,0 +1,47 @@
+# Gunakan perintah di terminal untuk membuat dan mengisi file
+# (Untuk pengguna Linux/macOS. Jika di Windows, buat manual di editor)
+cat << EOF > .gitignore
+# ================================================================= #
+#                      NODE/NPM DEPENDENCIES                        #
+# ================================================================= #
+/node_modules
+/npm-debug.log
+/yarn-error.log
+/yarn-debug.log
+.pnpm-store
+.yarn
+
+# ================================================================= #
+#                             BUILD OUTPUT                          #
+# ================================================================= #
+# Folder yang berisi hasil kompilasi (termasuk CSS akhir Tailwind)
+/dist
+/build
+/out
+/public/build
+/temp
+/tmp
+*.zip
+*.rar
+
+# ================================================================= #
+#                         ENVIRONMENT & SECRETS                     #
+# ================================================================= #
+# JANGAN PERNAH commit file yang berisi kunci rahasia atau kredensial!
+.env
+.env.local
+.env.*.local
+.secret
+/config/local-config.js
+
+# ================================================================= #
+#                        OS & EDITOR FILES                          #
+# ================================================================= #
+.DS_Store
+Thumbs.db
+ehthumbs.db
+.vscode/
+.idea/
+*~
+*.log
+EOF

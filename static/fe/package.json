@@ -1,0 +1,20 @@
+{
+  "name": "cleansound",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+"scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tailwind": "npx tailwindcss -i ./src/css/input.css -o ./dist/output.css --watch",
+    "server": "live-server --open=./src/pages/index.html .",
+    "dev": "concurrently \"npm run tailwind\" \"npm run server\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "live-server": "^1.2.2",
+    "tailwindcss": "^3.4.15"
+  }
+}

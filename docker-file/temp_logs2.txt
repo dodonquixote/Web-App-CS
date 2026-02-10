@@ -1,0 +1,12 @@
+time="2026-02-05T11:16:46+07:00" level=warning msg="c:\\1Perkuliahan\\pppl\\CleanSoundStudio\\CleanSoundStudio\\docker-file\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+cleansoundstudio_web  | Watching for file changes with StatReloader
+cleansoundstudio_web  | Performing system checks...
+cleansoundstudio_web  | 
+cleansoundstudio_web  | System check identified no issues (0 silenced).
+cleansoundstudio_web  | February 05, 2026 - 04:16:27
+cleansoundstudio_web  | Django version 5.2.8, using settings 'CleanSoundStudio.settings'
+cleansoundstudio_web  | Starting development server at http://0.0.0.0:8001/
+cleansoundstudio_web  | Quit the server with CONTROL-C.
+cleansoundstudio_web  | 
+cleansoundstudio_web  | WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+cleansoundstudio_web  | For more information on production servers see: https://docs.djangoproject.com/en/5.2/howto/deployment/

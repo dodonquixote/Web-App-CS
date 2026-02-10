@@ -1,0 +1,230 @@
+{% load static embed_filters %}
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLEANSOUND - Portal Berita Anime, Game, dan Geek</title>
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="{% static 'js/langRouter.js' %}" defer></script>
+</head>
+<body class="bg-gray-100">
+
+    <div id="navbar-placeholder" class="sticky top-0 z-50"></div>
+
+    <main class="container mx-auto px-4 mt-8">
+
+        <section id="section-1" class="grid grid-cols-1 md:grid-cols-custom-3 gap-6">
+            
+            <div class="flex flex-col gap-6"> 
+                
+                <div class="relative w-full overflow-hidden rounded-xl shadow-xl">
+                    
+                    <div id="hero-slider" class="relative aspect-video rounded-xl overflow-hidden">
+                        </div>
+
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md flex flex-col md:flex-row overflow-hidden px-2 h-auto md:h-[370px]">
+                    
+                    <div class="w-full md:w-2/3 h-[250px] md:h-full p-2 flex items-center justify-center">
+                        <iframe id="featured-youtube-iframe" data-vid="cnJdwoZgyB4" class="w-full h-full rounded-lg" src="{{ youtube_embed|default:'https://www.youtube.com/embed/cnJdwoZgyB4?enablejsapi=1&rel=0&modestbranding=1' }}" loading="lazy" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+
+                    <div class="w-full md:w-1/3 bg-[#F3E463] p-3 md:p-5 rounded-lg flex flex-col text-black h-auto md:max-h-[340px] md:overflow-y-auto mt-0 mb-4 md:mt-3 md:mb-3 md:ml-3">
+                        
+                        <span data-i18n="index.latest_video" class="text-lg font-bold">Video Terbaru</span>
+                        
+                        <p class="text-sm mt-2 break-long-words">{{ youtube_desc|default:'Episode terbaru dengan pembahasan menarik dan penuh hiburan dari tim kami.'|format_youtube_desc }}</p>
+                        
+                        <!-- <div class="hidden md:block"> <p class="text-sm mt-4 font-semibold">Starring:</p>
+                            <p class="text-sm">Remon Sapi<br>Hasan King<br>Eno Bening<br>Oca Chochalatte<br>Kuyub</p>
+                            
+                            <p class="text-sm mt-4 font-semibold">Follow kami:</p>
+                            <p class="text-sm">Instagram: @cleansoundstudio<br>Tiktok: @cleansoundst<br>Facebook: @cleansoundstudio</p>
+                            
+                            <p class="text-sm mt-4">Untuk endorsement & kerja sama...</p>
+                        </div> -->
+
+                        <a href="https://youtu.be/cnJdwoZgyB4" target="_blank" class="text-xs text-blue-800 font-semibold mt-4 hover:underline">Watch on YouTube</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-5 space-y-4 h-full flex flex-col">
+
+                <div>
+                    <h3 data-i18n="index.top_music" class="text-[25px] font-bold text-gray-900">Top Music of The Month</h3>
+                    <p data-i18n="index.spotify_desc" class="text-[14px] text-gray-500 mt-1">
+                        Playlist resmi komunitas CleanSound di Spotify
+                    </p>
+                </div>
+
+                <div class="w-full overflow-hidden rounded-xl border border-gray-200 shadow-sm flex-grow h-[400px] md:h-auto">
+                    <iframe 
+                        style="border-radius:12px" 
+                        src="{{ spotify_link|default:'https://open.spotify.com/embed/playlist/3pF21PXcxbOsobCDrnkhyT?utm_source=generator&theme=1' }}" 
+                        width="100%" 
+                        height="100%" 
+                        frameBorder="0" 
+                        allowfullscreen="" 
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                        loading="lazy"
+                        class="rounded-lg h-full">
+                    </iframe>
+                </div>
+
+                <a href="{{ spotify_link|default:'https://open.spotify.com/playlist/3pF21PXcxbOsobCDrnkhyT' }}"
+                target="_blank"
+                data-i18n="index.spotify_link"
+                class="text-sm text-green-700 font-semibold hover:underline">
+                    Lihat playlist lengkap di Spotify
+                </a>
+
+                <p class="text-sm text-gray-600">
+                    <span data-i18n="index.vote_question">Ingin lagu favoritmu masuk ke chart bulan depan?</span><br> 
+                    <a href="{{ vote_link|default:'#' }}" target="_blank" data-i18n="index.vote_link" class="text-green-600 font-semibold hover:underline">Ikut voting Top Music di sini!</a>
+                </p>
+
+            </div>
+
+        </section>
+
+        <section id="section-2" class="mt-8 space-y-8">
+            
+            <div id="home-anime-wrapper">
+                <h2 data-i18n="index.latest_anime" class="text-xl md:text-2xl font-bold text-gray-800 pb-1 mb-4 px-1">Latest Anime Update</h2>
+                
+                <div id="home-anime-grid" 
+                     class="flex overflow-x-auto pb-4 gap-4 md:grid md:grid-cols-3 md:overflow-visible md:pb-0 scrollbar-hide snap-x snap-mandatory">
+                     </div>
+                
+                <div class="text-right mt-2 px-1">
+                    <a href="/anime/" class="inline-block bg-white text-gray-500 font-semibold text-sm px-4 py-1.5 rounded-[15px] shadow-sm border border-gray-100 hover:shadow-md hover:text-gray-800 transition-all">Read more</a>
+                </div>
+            </div>
+
+            <div id="home-game-wrapper">
+                <h2 data-i18n="index.latest_game" class="text-xl md:text-2xl font-bold text-gray-800 pb-1 mb-4 px-1">Latest Game Update</h2>
+                
+                <div id="home-game-grid" 
+                     class="flex overflow-x-auto pb-4 gap-4 md:grid md:grid-cols-3 md:overflow-visible md:pb-0 scrollbar-hide snap-x snap-mandatory">
+                </div>
+                
+                <div class="text-right mt-2 px-1">
+                    <a href="/game/" class="inline-block bg-white text-gray-500 font-semibold text-sm px-4 py-1.5 rounded-[15px] shadow-sm border border-gray-100 hover:shadow-md hover:text-gray-800 transition-all">Read more</a>
+                </div>
+            </div>
+
+            <div id="home-geek-wrapper">
+                <h2 data-i18n="index.latest_geek" class="text-xl md:text-2xl font-bold text-gray-800 pb-1 mb-4 px-1">Latest Geek Update</h2>
+                
+                <div id="home-geek-grid" 
+                     class="flex overflow-x-auto pb-4 gap-4 md:grid md:grid-cols-3 md:overflow-visible md:pb-0 scrollbar-hide snap-x snap-mandatory">
+                </div>
+                
+                <div class="text-right mt-2 px-1">
+                    <a href="/geek/" class="inline-block bg-white text-gray-500 font-semibold text-sm px-4 py-1.5 rounded-[15px] shadow-sm border border-gray-100 hover:shadow-md hover:text-gray-800 transition-all">Read more</a>
+                </div>
+            </div>
+
+        </section>
+        
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script type="module" src="{% static 'js/main.js' %}"></script>
+    <!-- YouTube embed error fallback: replace broken embeds with thumbnail + link -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+    (function(){
+        const iframe = document.querySelector('iframe[src*="youtube.com/embed/"]');
+        if (!iframe) return;
+        const src = iframe.getAttribute('src') || '';
+        const m = src.match(/embed\/([A-Za-z0-9_-]{6,})/);
+        const vid = m ? m[1] : null;
+        if (!vid) return;
+
+        // when YouTube API ready, attach player to detect playback errors
+        // retry logic: try several embed URL variants before falling back to thumbnail
+        const baseEmbed = `https://www.youtube.com/embed/${vid}`;
+        const originParam = encodeURIComponent(location.origin);
+        const altSrcs = [
+            baseEmbed + `?enablejsapi=1&rel=0&modestbranding=1&origin=${originParam}`,
+            baseEmbed + `?enablejsapi=1&rel=0&modestbranding=1`,
+            `https://www.youtube-nocookie.com/embed/${vid}?enablejsapi=1&rel=0&modestbranding=1`
+        ];
+
+        function makePlayer(srcIndex) {
+            try {
+                // set iframe src to current attempt
+                iframe.src = altSrcs[srcIndex];
+                iframe.dataset.attempt = srcIndex;
+                // ensure iframe has an id for YT.Player
+                if (!iframe.id) iframe.id = 'yt-embed-' + Math.random().toString(36).slice(2,8);
+                return new YT.Player(iframe.id, {
+                    events: {
+                                onError: function(e) {
+                                    const code = e && e.data;
+                                    console.warn('YouTube player onError', code, 'attempt', srcIndex);
+                                    // If YouTube explicitly blocks embedding (101/150/153), stop retrying.
+                                    if ([101,150,153].includes(code)) {
+                                        console.warn('YouTube embed blocked (no fallback will be shown)', code);
+                                        return;
+                                    }
+                                    const next = (parseInt(iframe.dataset.attempt||0) || 0) + 1;
+                                    if (next < altSrcs.length) {
+                                        // try next variant after short delay
+                                        setTimeout(function(){
+                                            try {
+                                                try { if (window.YT && window.YT.get) { /* no-op */ } } catch(e){}
+                                            } catch(e){}
+                                            makePlayer(next);
+                                        }, 250);
+                                        } else {
+                                            console.warn('YouTube player error and all attempts exhausted; no fallback will be shown', srcIndex);
+                                        }
+                                }
+                    }
+                });
+            } catch (err) {
+                console.warn('youtube player init failed', err);
+                const next = (parseInt(iframe.dataset.attempt||0) || 0) + 1;
+                if (next < altSrcs.length) makePlayer(next);
+            }
+        }
+
+        // Wait for API ready and start first attempt
+        window.onYouTubeIframeAPIReady = function() {
+            makePlayer(0);
+        };
+    })();
+    </script>
+    <!-- Ensure iframe src includes enablejsapi and origin params for proper playback -->
+    <script>
+    (function(){
+        try {
+            const iframe = document.querySelector('iframe[src*="youtube.com/embed/"]');
+            if (!iframe) return;
+            const src = iframe.getAttribute('src') || '';
+            const url = new URL(src, location.href);
+            // set recommended params
+            url.searchParams.set('enablejsapi','1');
+            url.searchParams.set('rel','0');
+            url.searchParams.set('modestbranding','1');
+            url.searchParams.set('origin', location.origin);
+            iframe.src = url.toString();
+            iframe.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+            iframe.setAttribute('referrerpolicy','no-referrer-when-downgrade');
+        } catch (err) {
+            console.warn('normalize youtube iframe failed', err);
+        }
+    })();
+    </script>
+
+</body>
+</html>

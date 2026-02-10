@@ -1,0 +1,27 @@
+{% extends 'dashboard/dashboard.html' %}
+{% load static %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="form-card">
+        <h2>{{ article.title }}</h2>
+        <p class="text-sm text-gray-500">Category: {{ article.category.name if article.category }}</p>
+        <div class="mt-6">
+            {% if article.featured_image %}
+                <img src="{{ article.featured_image.url }}" alt="Featured" style="max-width:100%; height:auto; border-radius:8px;" />
+            {% endif %}
+        </div>
+
+        <article class="prose prose-lg max-w-none text-gray-700 leading-loose mt-6">{{ article.content|safe }}</article>
+
+        <div class="form-actions mt-8">
+            <a href="{% url 'DashboardAdmin:edit_article' article.slug %}" class="btn btn-primary"><i class="fas fa-edit"></i> Edit</a>
+            <form method="post" action="{% url 'DashboardAdmin:delete_article' article.slug %}" style="display:inline-block; margin-left:8px;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary" onclick="return confirm('Are you sure you want to delete this article?');"><i class="fas fa-trash-alt"></i> Delete</button>
+            </form>
+            <a href="{% url 'DashboardAdmin:list_articles' %}" class="btn btn-secondary" style="margin-left:8px;"><i class="fas fa-arrow-left"></i> Back</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

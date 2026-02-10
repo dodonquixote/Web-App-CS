@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Halaman Tidak Ditemukan</title>
+  <link href="{% static 'dist/output.css' %}" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black">
+
+<div id="navbar-placeholder" class="sticky top-0 z-50"></div>
+
+<div class="flex flex-col items-center justify-center min-h-screen">
+  <div class="text-center flex">
+    <h1 class="font-display text-7xl text-cs-yellow1 pb-2">OOPS!</h1>
+  </div>
+   
+  <div class="text-center bg-yellow-400 p-10 rounded-2xl shadow-lg max-w-md">
+    <h1 class="text-7xl font-bold text-white font-display">404</h1>
+    <h2 class="text-2xl font-bold mt-4">Page Not Found</h2>
+    <p class="text-gray-600 mt-2 font-semibold font-poppins">
+      Sorry, the page you are looking for is not available or has been moved.
+    </p>
+
+    <a href="{% url 'home' %}"
+       class="inline-block mt-6 px-6 py-3 bg-black text-white font-semibold rounded-lg hover:-translate-y-1 hover:shadow-gray-600 hover:shadow-md  transition">
+      Back to Home
+    </a>
+  </div>
+  </div>
+
+  <div id="footer-placeholder"></div>
+  <script type="module" src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

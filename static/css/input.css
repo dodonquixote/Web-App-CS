@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure numbered and bulleted lists display correctly in article content */
+.non-prose ol,
+article.non-prose ol {
+  list-style-type: decimal;
+  margin-left: 1.5em;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding-left: 0.5em;
+}
+
+.non-prose ul,
+article.non-prose ul {
+  list-style-type: disc;
+  margin-left: 1.5em;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding-left: 0.5em;
+}
+
+.non-prose li,
+article.non-prose li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  display: list-item;
+}
+
+/* Nested lists */
+.non-prose ol ol,
+article.non-prose ol ol {
+  list-style-type: lower-alpha;
+}
+
+.non-prose ol ol ol,
+article.non-prose ol ol ol {
+  list-style-type: lower-roman;
+}
+
+.non-prose ul ul,
+article.non-prose ul ul {
+  list-style-type: circle;
+}
+
+.non-prose ul ul ul,
+article.non-prose ul ul ul {
+  list-style-type: square;
+}

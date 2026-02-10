@@ -1,0 +1,679 @@
+{% load static %}
+{% load embed_filters %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - CLEANSOUND</title>
+    <meta name="description" content="{{ article.excerpt|default:title }}">
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{ title }}">
+    <meta property="og:description" content="{{ article.excerpt|default:title }}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:site_name" content="CLEANSOUND">
+
+    <!-- WAJIB: image absolut -->
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ article.featured_image.url }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Telegram / Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ title }}">
+    <meta name="twitter:description" content="{{ article.excerpt|default:title }}">
+    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ article.featured_image.url }}">
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="{% static 'js/langRouter.js' %}" defer></script>
+    
+    <style>
+        /* Force list styles to display - CRITICAL for numbered/bulleted lists */
+        article.non-prose ol,
+        .non-prose ol {
+            list-style-type: decimal !important;
+            margin-left: 2em !important;
+            margin-top: 1em !important;
+            margin-bottom: 1em !important;
+            padding-left: 0.5em !important;
+        }
+
+        article.non-prose ul,
+        .non-prose ul {
+            list-style-type: disc !important;
+            margin-left: 2em !important;
+            margin-top: 1em !important;
+            margin-bottom: 1em !important;
+            padding-left: 0.5em !important;
+        }
+
+        article.non-prose li,
+        .non-prose li {
+            display: list-item !important;
+            margin-top: 0.5em !important;
+            margin-bottom: 0.5em !important;
+        }
+
+        /* Nested lists */
+        article.non-prose ol ol,
+        .non-prose ol ol {
+            list-style-type: lower-alpha !important;
+        }
+
+        article.non-prose ol ol ol,
+        .non-prose ol ol ol {
+            list-style-type: lower-roman !important;
+        }
+
+        article.non-prose ul ul,
+        .non-prose ul ul {
+            list-style-type: circle !important;
+        }
+
+        article.non-prose ul ul ul,
+        .non-prose ul ul ul {
+            list-style-type: square !important;
+        }
+
+        /* Allow embeds to display without being cut off */
+        article.non-prose {
+            overflow: visible;
+        }
+
+        /* Ensure iframes and embeds fit the article width without cropping */
+        article.non-prose iframe {
+            max-width: 100% !important;
+            width: 100% !important;
+            height: auto;
+        }
+
+        /* Twitter embed: keep readable size within article width */
+        article.non-prose .twitter-tweet {
+            max-width: 550px !important;
+            width: 100% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        /* Instagram embed */
+        article.non-prose .instagram-media {
+            max-width: 540px !important;
+            width: 100% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        /* TikTok embed */
+        article.non-prose .tiktok-embed {
+            max-width: 605px !important;
+            width: 100% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        /* Embed wrapper divs */
+        article.non-prose > div[class*="aspect"],
+        article.non-prose > div[class*="embed"],
+        article.non-prose > div[class*="w-full"] {
+            max-width: 100% !important;
+            width: 100% !important;
+            overflow: visible !important;
+        }
+
+        /* Ensure nested iframes inside wrappers are responsive */
+        article.non-prose div > iframe {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+    </style>
+</head>
+<body class="bg-white font-poppins text-gray-900 ">
+
+        {% if ad_left_url %}
+        <!-- IKLAN KIRI -->
+        <aside id="ad-left" class="hidden lg:block fixed z-40 left-4 top-1/2 -translate-y-1/2">
+
+            <div class="relative w-full h-full rounded-xl overflow-hidden flex items-center justify-center">
+                {% if ad_left_link %}
+                    <a href="{{ ad_left_link }}" target="_blank" rel="noopener noreferrer" class="w-full h-full flex items-center justify-center">
+                        <img src="{{ ad_left_url }}" alt="Iklan kiri" class="w-full h-full object-contain rounded-lg">
+                    </a>
+                {% else %}
+                    <img src="{{ ad_left_url }}" alt="Iklan kiri" class="w-full h-full object-contain rounded-lg">                    
+                {% endif %}
+            </div>
+
+            <!-- Tombol Close di LUAR sebelah KANAN -->
+            <button
+                id="bt-left"
+                onclick="document.getElementById('ad-left').remove()"
+                class="absolute w-8 h-8 flex items-center justify-center
+                        rounded-sm bg-black text-white text-xs shadow-lg"
+                aria-label="Tutup iklan">
+                ✕
+            </button>
+
+        </aside>
+        {% endif %}
+
+
+        {% if ad_right_url %}
+        <!-- IKLAN KANAN -->
+        <aside id="ad-right" class="hidden lg:block fixed z-40 right-4 top-1/2 -translate-y-1/2">
+
+            <div class="relative w-full h-full rounded-xl overflow-hidden flex items-center justify-center">
+                {% if ad_right_link %}
+                    <a href="{{ ad_right_link }}" target="_blank" rel="noopener noreferrer" class="w-auto h-full flex items-center justify-center">
+                        <img src="{{ ad_right_url }}" alt="Iklan kanan" class="w-auto h-full object-contain rounded-lg">
+                    </a>
+                {% else %}
+                    <img src="{{ ad_right_url }}" alt="Iklan kanan" class="w-auto h-full object-contain rounded-lg">
+                {% endif %}
+            </div>
+
+            <!-- Tombol Close di LUAR sebelah KIRI -->
+            <button
+                id="bt-right"
+                onclick="document.getElementById('ad-right').remove()"
+                class="absolute w-8 h-8 flex items-center justify-center
+                        rounded-sm bg-black text-white text-xs shadow-lg"
+                aria-label="Tutup iklan">
+                ✕
+            </button>
+
+        </aside>
+        {% endif %}
+
+        
+
+
+    <div id="navbar-placeholder" class="sticky top-0 z-50"></div>
+
+    <main class="mt-12 pb-20">
+        
+        <div class="container mx-auto px-4 max-w-4xl">
+
+            {% if article %}
+            <div class="w-full h-auto aspect-video rounded-xl overflow-hidden shadow-sm mb-8 border border-gray-100">
+                {% if article.featured_image %}
+                    <img id="article-image" src="{{ article.featured_image.url }}" alt="Article Image" class="w-full h-full object-cover object-center">
+                {% else %}
+                    <img id="article-image" src="{% static 'images/placeholder.png' %}" alt="Article Image" class="w-full h-full object-cover object-center">
+                {% endif %}
+            </div>
+
+            <div class="mb-10 border-b border-gray-200 pb-6">
+                <h1 id="article-title" data-server-rendered="true" class="text-2xl md:text-4xl font-bold leading-tight mb-4 text-gray-900">{{ title }}</h1>
+
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-2 font-bold text-black">
+                            <span>{{ article.admin.get_full_name|default:article.admin.username|default:"Admin" }}</span>
+                        </div>
+                        <span class="flex items-center gap-1 text-gray-500 font-medium">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            {{ article.published_at|date:"d M Y" }}
+                        </span>
+
+                        {% comment %} Tombol Share {% endcomment %}
+                         <div class="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+
+                                <button onclick="toggleModal()" class="flex items-center gap-2 px-6 py-3 text-white bg-black rounded-full shadow-lg hover:bg-yellow-400 hover:text-black transition-all font-medium">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0-10.628a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Zm0 10.628a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5Z" />
+                                    </svg>
+                                    
+                                </button>
+
+                                <div id="share-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+                                    <div onclick="toggleModal()" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+                                    <div class="relative w-2/3 md:w-1/3 max-w-sm p-6 bg-white rounded-2xl shadow-2xl mx-4 transform transition-all">
+                                    <div class="flex justify-between items-center mb-5">
+                                        <h3 class="text-xl font-bold text-gray-800">Bagikan Halaman</h3>
+                                        <button onclick="toggleModal()" class="text-gray-400 hover:text-gray-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        </button>
+                                    </div>
+
+                                    <div class="flex flex-col lg:flex-row items-center gap-2 p-2 bg-gray-50 border border-gray-200 rounded-xl mb-6">
+                                        <input id="share-url" type="text" readonly
+                                        class="flex-1 bg-transparent border-none text-sm text-gray-600 focus:ring-0 outline-none px-2 overflow-hidden text-ellipsis"
+                                        value="">
+                                        <button onclick="copyLink()" id="copy-btn"
+                                        class="bg-black hover:bg-yellow-400 text-white hover:text-black px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                                        <span id="btn-text">Copy</span>
+                                        </button>
+                                    </div>
+
+                                    <div class="relative flex py-2 items-center">
+                                        <div class="flex-grow border-t border-gray-200"></div>
+                                        <span class="flex-shrink mx-4 text-gray-400 text-xs uppercase tracking-widest">Atau bagikan ke</span>
+                                        <div class="flex-grow border-t border-gray-200"></div>
+                                    </div>
+
+                                    <div class="flex justify-between items-center mt-6 px-1">
+                                        <a id="share-wa" target="_blank" class="flex flex-col items-center gap-1 group">
+                                        <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#25D366] text-white group-hover:scale-110 transition-transform shadow-md">
+                                            <img src="/static/icons/whatsapp.png" alt="Instagram" class="w-8 h-8 object-contain">
+                                        </div>
+                                        <span class="text-[10px] text-gray-500 font-medium">WhatsApp</span>
+                                        </a>
+
+                                        <a id="share-x" target="_blank" class="flex flex-col items-center gap-1 group">
+                                        <div class="w-12 h-12 flex items-center justify-center rounded-full  group-hover:scale-110 transition-transform shadow-md">
+                                            <img src="/static/icons/twitter_alt.png" alt="X Twitter" class="w-8 h-8 object-contain">
+                                        </div>
+                                        <span class="text-[10px] text-gray-500 font-medium">X</span>
+                                        </a>
+
+                                        <a id="share-tg" target="_blank" class="flex flex-col items-center gap-1 group">
+                                        <div class="w-12 h-12 flex items-center justify-center rounded-full bg-[#0088cc] text-white group-hover:scale-110 transition-transform shadow-md">
+                                            <img src="/static/icons/telegram.png" alt="Instagram" class="w-8 h-8 object-contain">
+                                        </div>
+                                        <span class="text-[10px] text-gray-500 font-medium">Telegram</span>
+                                        </a>
+
+                                    </div>
+
+                                    <p id="success-msg" class="absolute -bottom-12 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs py-2 px-4 rounded-lg opacity-0 transition-opacity">
+                                        Link berhasil disalin!
+                                    </p>
+                                    </div>
+                                </div>
+                                </div>
+
+                                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+                    </div>
+
+                    {% comment %} <div>
+                        <div id="likeSection" {% if article and article.slug %}data-slug="{{ article.slug }}"{% endif %}></div>
+                    </div> {% endcomment %}
+
+                    <div class="flex items-center gap-4">
+                        <span data-i18n="article.discover_more" class="text-xs text-gray-400 hidden md:inline">Discover more</span>
+                        <span id="article-category" class="bg-[#EFED3C] text-black text-xs font-bold px-3 py-1 rounded shadow-sm uppercase tracking-wide">{{ article.category.name }}</span>
+                        <span class="bg-white border border-gray-200 text-gray-500 text-xs font-bold px-3 py-1 rounded hover:bg-gray-50 cursor-pointer hidden md:inline-block">Game</span>
+                        <span class="bg-white border border-gray-200 text-gray-500 text-xs font-bold px-3 py-1 rounded hover:bg-gray-50 cursor-pointer hidden md:inline-block">Geek</span>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <article class="not-prose prose-lg max-w-none text-gray-700 leading-loose font-poppins md:prose-xl break-long-words">
+                {# NOTE: content is already processed with autoembed filter in the view #}
+                {{ content|safe }}
+            </article>
+            {% else %}
+            <div class="w-full text-center py-20">
+                <h2 class="text-3xl font-bold mb-4">Article tidak ditemukan</h2>
+                <p class="text-gray-600 mb-6">Maaf, artikel yang Anda cari tidak tersedia atau mungkin belum dipublikasikan.</p>
+                <div class="flex items-center justify-center gap-4">
+                    <a href="/" class="bg-yellow-400 text-black font-semibold px-5 py-2 rounded">Kembali ke Beranda</a>
+                    <a href="/" class="text-gray-500 underline">Telusuri artikel lain</a>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- iklan mobile -->
+        <div class="flex flex-col py-4 mx-auto items-center justify-center">
+
+                {% if ad_top_url %}
+                <aside id="ad-top" class="relative mx-auto mb-4 overflow-visible lg:hidden"> 
+                    <div class="w-full h-full rounded-xl overflow-hidden">
+                        {% if ad_top_link %}
+                            <a href="{{ ad_top_link }}" target="_blank" rel="noopener noreferrer" class="w-full h-full block">
+                                <img src="{{ ad_top_url }}" alt="Iklan Atas" class="w-full h-full object-cover"> 
+                            </a>
+                        {% else %}
+                            <img src="{{ ad_top_url }}" alt="Iklan Atas" class="w-full h-full object-cover"> 
+                        {% endif %}
+                    </div>
+                    <button id="bt-top"
+                        onclick="document.getElementById('ad-top').remove()"
+                        class="absolute left-1/2 -translate-x-1/2 top-0 translate-y-[-50%] w-6 h-6 flex items-center justify-center rounded-md bg-black text-white text-[10px] z-50 shadow-md">
+                        ✕
+                    </button>
+                </aside>
+                {% endif %}
+
+                {% if ad_down_url %}
+                <aside id="ad-down" class="relative mx-auto mt-4 overflow-visible lg:hidden"> 
+                    <div class="w-full h-full rounded-xl overflow-hidden">
+                        {% if ad_down_link %}
+                            <a href="{{ ad_down_link }}" target="_blank" rel="noopener noreferrer" class="w-full h-full block">
+                                <img src="{{ ad_down_url }}" alt="Iklan Bawah" class="w-full h-full object-cover"> 
+                            </a>
+                        {% else %}
+                            <img src="{{ ad_down_url }}" alt="Iklan Bawah" class="w-full h-full object-cover"> 
+                        {% endif %}
+                    </div>
+                    <button id="bt-down"
+                        onclick="document.getElementById('ad-down').remove()"
+                        class="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-[50%] w-6 h-6 flex items-center justify-center rounded-md bg-black text-white text-[10px] z-50 shadow-md">
+                        ✕
+                    </button>
+                </aside>
+                {% endif %}
+
+        </div>
+
+        <div class="container mx-auto px-4 max-w-6xl mt-12">
+                <h3 data-i18n="article.you_may_like" class="text-2xl font-bold text-gray-900 mb-6">You may also like</h3>
+            
+            <div id="related-news-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                </div>
+            
+            <div class="text-center mt-12">
+                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" data-i18n="btn.back_to_top" class="bg-white border border-gray-300 text-gray-600 font-semibold text-sm px-6 py-2 rounded-full shadow-sm hover:shadow-md hover:border-gray-400 transition">
+                    Back To Top
+                </button>
+            </div>
+        </div>
+
+    </main>
+    
+
+    <div id="footer-placeholder"></div>
+    <script type="module" src="{% static 'js/main.js' %}"></script>
+    <script type="module" src="{% static 'js/like.js' %}"></script>
+    <script>
+    // Append article link when user copies text from the article content
+    (function(){
+        document.addEventListener('copy', function(e){
+            try {
+                const articleEl = document.querySelector('article.non-prose');
+                if (!articleEl) return; // nothing to do
+
+                const sel = window.getSelection();
+                if (!sel || sel.isCollapsed) return; // no selection
+
+                // Check if selection is inside the article element
+                const range = sel.rangeCount ? sel.getRangeAt(0) : null;
+                if (!range) return;
+                const container = range.commonAncestorContainer;
+                if (!articleEl.contains(container)) return;
+
+                const selectedText = sel.toString();
+                if (!selectedText.trim()) return;
+
+                const pageUrl = window.location.href;
+                const attribution = `\n\nBaca selengkapnya di: ${pageUrl}`;
+
+                // Prevent default copy and set our own clipboard data
+                e.preventDefault();
+                if (e.clipboardData) {
+                    e.clipboardData.setData('text/plain', selectedText + attribution);
+                    // also set a basic HTML version
+                    const html = (selectedText.replace(/\n/g, '<br>')) + `<br><br><a href="${pageUrl}">Baca selengkapnya</a>`;
+                    e.clipboardData.setData('text/html', html);
+                } else if (window.clipboardData) {
+                    // IE fallback
+                    window.clipboardData.setData('Text', selectedText + attribution);
+                }
+            } catch (err) {
+                // fail silently
+                console.warn('copy-attribution error', err);
+            }
+        });
+    })();
+    </script>
+    <!-- Normalize YouTube embed iframes inserted by autoembed: add enablejsapi and origin; add retry fallback attempts -->
+    <script>
+    // YouTube embed normalization disabled - let YouTube work natively
+    /*
+    window.initArticleYouTubeEmbeds = function(){
+        try {
+            console.log('[initArticleYouTubeEmbeds] Starting...');
+            const managed = [];
+            const iframes = document.querySelectorAll('article.non-prose iframe[src*="youtube.com/embed/"]');
+            console.log('[initArticleYouTubeEmbeds] Found', iframes.length, 'YouTube iframes');
+            iframes.forEach((iframe, idx) => {
+                try {
+                    const src = iframe.getAttribute('src') || '';
+                    console.log(`[initArticleYouTubeEmbeds] iframe[${idx}] src:`, src);
+                    
+                    // Don't modify the iframe src - just prepare for error handling
+                    iframe.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+                    iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+
+                    // extract vid
+                    const url = new URL(src, location.href);
+                    const m = url.pathname.match(/embed\/([^/?]+)/);
+                    if (m && m[1]) {
+                        iframe.dataset.youtubeVid = m[1];
+                        console.log(`[initArticleYouTubeEmbeds] iframe[${idx}] vid:`, m[1]);
+                        managed.push(iframe);
+                    }
+                } catch(e2){
+                    console.warn('[initArticleYouTubeEmbeds] per-iframe error:', e2);
+                }
+            });
+
+            console.log('[initArticleYouTubeEmbeds] Managed iframes:', managed.length);
+            if (managed.length === 0) {
+                console.warn('[initArticleYouTubeEmbeds] No managed iframes found, returning');
+                return;
+            }
+
+            // Just log success - don't load YouTube Player API or modify iframes
+            console.log('[initArticleYouTubeEmbeds] YouTube iframes initialized successfully. Skipping Player API.');
+
+        } catch (err) {
+            console.warn('normalize article youtube iframes failed', err);
+        }
+    };
+    
+    // Call on initial page load - needed for YouTube embeds to work properly
+    window.initArticleYouTubeEmbeds();
+    console.log('[article.html] YouTube iframes initialized for initial page load');
+    */
+    console.log('[article.html] YouTube embeds running natively without JavaScript modification');
+    
+    <!-- Position left/right ad asides beside the centered article container -->
+
+    
+    </script>
+    <script>
+    (function(){
+        function positionAds(){
+            try{
+                var left = document.getElementById('ad-left');
+                var left1 = document.getElementById('bt-left');
+                
+                var right = document.getElementById('ad-right');
+                var right1 = document.getElementById('bt-right');
+            
+
+                if(!left || !right) return;
+
+                // hanya tampil di layar besar
+                if(window.innerWidth < 1024){
+                    left.style.display = 'none';
+                    right.style.display = 'none';
+                    return;
+                }
+
+                // tampilkan iklan
+                left.style.display = 'block';
+                right.style.display = 'block';
+
+
+                // POJOK KIRI & KANAN
+                left.style.left = '16px';
+                right.style.right = '16px';
+
+                // TENGAH LAYAR (VERTIKAL)
+                left.style.top = '50%';
+                right.style.top = '50%';
+                
+                // Lebar Iklan
+                left.style.width = '240px'  
+                right.style.width = '240px' 
+
+                // Tinggi iklan
+                left.style.height = '400px'
+                right.style.height = '400px'
+
+                // CENTER VERTIKAL
+                left.style.transform = 'translateY(-50%)';
+                right.style.transform = 'translateY(-50%)';
+
+               // Lebar tombol kita adalah 32px (sama dengan w-8 di Tailwind)
+                var btnWidth = '32px';
+
+                // Iklan Kiri
+                left1.style.position = 'absolute';
+                left1.style.top = '50%';
+                left1.style.right = '-' + btnWidth; // Menempel di luar kanan
+                left1.style.left = 'auto'; // Reset agar tidak konflik
+                left1.style.transform = 'none'; // Menghilangkan translate-y jika ada
+
+                // Iklan Kanan
+                right1.style.position = 'absolute';
+                right1.style.top = '50%';
+                right1.style.left = '-' + btnWidth; // Menempel di luar kiri
+                right1.style.right = 'auto'; // Reset agar tidak konflik
+                right1.style.transform = 'none';
+                
+
+            }catch(e){
+                console.warn('positionAds error', e);
+            }
+        }
+
+        var resizeTimer;
+        window.addEventListener('resize', function(){ clearTimeout(resizeTimer); resizeTimer = setTimeout(positionAds, 120); });
+        window.addEventListener('scroll', positionAds);
+        document.addEventListener('DOMContentLoaded', function(){ setTimeout(positionAds, 80); });
+        // call once in case script loaded after DOMContentLoaded
+        
+    })();
+
+    
+    </script>
+    <script>
+        (function(){
+        function iklanMobile(){
+            try{
+                var top = document.getElementById('ad-top');
+                var top1 = document.getElementById('bt-top');
+                
+                var down = document.getElementById('ad-down');
+                var down1 = document.getElementById('bt-down');
+            
+
+               // ... (dalam blok try)
+                if(!top || !down) return;
+
+                if(window.innerWidth >= 1024){
+                    top.style.display = 'none';
+                    down.style.display = 'none';
+                    return;
+                }
+
+                top.style.display = 'block';
+                down.style.display = 'block';
+
+                // Ukuran Iklan Mobile
+                top.style.width = '320px';
+                top.style.height = '100px';
+                down.style.width = '320px';
+                down.style.height = '100px';
+
+                // Memastikan posisi tombol berada di POJOK KANAN ATAS gambar
+                if(top1) {
+                    top1.style.right = '5px';
+                    top1.style.top = '-22px';
+                    top1.style.left = 'auto';      // Reset posisi kiri
+                    top1.style.transform = 'none'; // Hapus centering transform
+                }
+
+                if(down1) {
+                    down1.style.right = '5px';
+                    down1.style.top = '-22px';
+                    down1.style.bottom = 'auto';   // Pastikan tidak di bawah
+                    down1.style.left = 'auto';     // Reset posisi kiri
+                    down1.style.transform = 'none'; // Hapus centering transform
+                }
+                
+
+            }catch(e){
+                console.warn('iklanMobile error', e);
+            }
+        }
+
+        var resizeTimer;
+        window.addEventListener('resize', function(){ clearTimeout(resizeTimer); resizeTimer = setTimeout(iklanMobile, 120); });
+        window.addEventListener('scroll', iklanMobile);
+        document.addEventListener('DOMContentLoaded', function(){ setTimeout(iklanMobile, 80); });
+        // call once in case script loaded after DOMContentLoaded
+        
+    })();
+    </script>
+    <script>
+        function toggleModal() {
+            const modal = document.getElementById('share-modal');
+            const currentUrl = window.location.href;
+
+            // --- LOGIKA PENGAMBILAN PREVIEW ---
+            // Mengambil Judul dari meta og:title, jika tidak ada pakai <title> tag
+            const pageTitle = document.querySelector('meta[property="og:title"]')?.content 
+                            || document.title 
+                            || "Artikel Menarik";
+
+            // Mengambil Deskripsi dari meta description (opsional)
+            const pageDesc = document.querySelector('meta[name="description"]')?.content 
+                            || document.querySelector('meta[property="og:description"]')?.content 
+                            || "";
+
+            // Membuat format pesan (Contoh: Baca "Judul Artikel" di sini:)
+            const text = `Baca "${pageTitle}" di sini: `;
+            // ----------------------------------
+
+            modal.classList.toggle('hidden');
+
+            if (!modal.classList.contains('hidden')) {
+                // Isi URL ke input copy
+                document.getElementById('share-url').value = currentUrl;
+
+                // Update Link Sosial Media dengan teks dinamis
+                // WhatsApp
+                document.getElementById('share-wa').href = `https://wa.me/?text=${encodeURIComponent(text + currentUrl)}`;
+                
+                // X (Twitter)
+                document.getElementById('share-x').href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(text)}`;
+                
+                // Telegram
+                document.getElementById('share-tg').href = `https://t.me/share/url?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(text)}`;
+
+
+            }
+        }
+
+        function copyLink() {
+            const copyText = document.getElementById("share-url");
+            const btnText = document.getElementById("btn-text");
+            const successMsg = document.getElementById("success-msg");
+
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                btnText.innerText = "Copied!";
+                successMsg.classList.replace('opacity-0', 'opacity-100');
+                setTimeout(() => {
+                    btnText.innerText = "Copy";
+                    successMsg.classList.replace('opacity-100', 'opacity-0');
+                }, 500); // 500ms sesuai kode Anda
+            });
+        }
+    </script>
+
+    
+</body>
+</html>

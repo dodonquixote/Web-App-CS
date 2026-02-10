@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Category - CLEANSOUND</title> 
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="{% static 'js/langRouter.js' %}" defer></script>
+</head>
+<body class="bg-white font-sans text-gray-800">
+
+    <div id="navbar-placeholder" class="sticky top-0 z-50"></div>
+
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+        <h1 data-i18n="category.game" class="text-xl font-bold text-gray-500 mb-6">Category Game!</h1>
+
+        <div id="hero-section"></div>
+        <div id="grid-section" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-12"></div>
+        <div class="pagination-container flex justify-center gap-2 mt-6"></div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script type="module" src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

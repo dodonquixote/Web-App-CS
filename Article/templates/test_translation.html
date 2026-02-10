@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Translation Flow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-8">
+    <h1 class="text-2xl font-bold mb-4">Test Translation Flow</h1>
+    
+    <div class="mb-4 space-x-2">
+        <button onclick="loadTranslation('id')" class="bg-blue-500 text-white px-4 py-2 rounded">Load ID</button>
+        <button onclick="loadTranslation('en')" class="bg-green-500 text-white px-4 py-2 rounded">Load EN</button>
+        <button onclick="loadTranslation('ja')" class="bg-purple-500 text-white px-4 py-2 rounded">Load JA</button>
+    </div>
+    
+    <div class="mb-4">
+        <h2 class="text-xl font-semibold">Article Content:</h2>
+        <article class="prose prose-lg border p-4 bg-gray-50" id="article-content">
+            <p>Click a button to load translation...</p>
+        </article>
+    </div>
+    
+    <div>
+        <h2 class="text-xl font-semibold mb-2">Debug Info:</h2>
+        <pre id="debug-info" class="bg-gray-800 text-green-400 p-4 rounded text-xs overflow-auto max-h-96"></pre>
+    </div>
+
+    <script>
+        function log(msg) {
+            const debug = document.getElementById('debug-info');
+            const time = new Date().toISOString().split('T')[1].slice(0, -1);
+            debug.textContent += `[${time}] ${msg}\n`;
+            debug.scrollTop = debug.scrollHeight;
+            console.log(msg);
+        }
+        
+        async function loadTranslation(lang) {
+            try {
+                log(`Loading translation for: ${lang}`);
+                
+                const response = await fetch('/api/translate/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        page: 'article',
+                        slug: 'test2',
+                        lang: lang
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                log(`Response received - title: ${data.title}`);
+                
+                if (data.content) {
+                    log(`Content length: ${data.content.length} chars`);
+                    
+                    // Count iframes in response
+                    const iframeMatches = data.content.match(/<iframe[^>]*>/g);
+                    log(`Iframes in response: ${iframeMatches ? iframeMatches.length : 0}`);
+                    
+                    if (iframeMatches) {
+                        log(`First iframe: ${iframeMatches[0].substring(0, 100)}...`);
+                    }
+                    
+                    // Replace content
+                    const articleEl = document.getElementById('article-content');
+                    articleEl.innerHTML = data.content;
+                    log('Content replaced in DOM');
+                    
+                    // Check iframes in DOM
+                    const domIframes = articleEl.querySelectorAll('iframe[src*="youtube"]');
+                    log(`Iframes in DOM after replacement: ${domIframes.length}`);
+                    
+                    if (domIframes.length > 0) {
+                        domIframes.forEach((iframe, idx) => {
+                            log(`  Iframe ${idx + 1} src: ${iframe.src.substring(0, 60)}...`);
+                        });
+                    }
+                } else {
+                    log('ERROR: No content in response');
+                }
+                
+            } catch (err) {
+                log(`ERROR: ${err.message}`);
+                console.error(err);
+            }
+        }
+        
+        log('Page loaded - ready to test');
+    </script>
+</body>
+</html>

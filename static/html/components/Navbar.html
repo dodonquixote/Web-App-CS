@@ -1,0 +1,104 @@
+<nav class="bg-black p-4 sticky top-0 z-50 shadow-md border-b border-gray-800">
+    <div class="container mx-auto flex justify-between items-center">
+
+        <div class="flex items-center space-x-2">
+            <img src="/static/logos/CSLogo.png" alt="Logo CS" class="h-10 w-auto">
+            <span class="text-[#EFED3C] text-md lg:text-xl font-bold tracking-widest" style="font-family: 'Press Start 2P', cursive;">CLEANSOUND</span>
+        </div>
+        
+        <button id="mobile-menu-btn" class="block md:hidden bg-[#EFED3C] text-black p-2 rounded-full focus:outline-none transition transform hover:scale-105 shadow-sm">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h18M3 6h18M3 18h18"></path>
+            </svg>
+        </button>
+
+        <div class="hidden md:flex items-center space-x-3">
+            <a href="/" data-i18n="nav.home" class="nav-item flex items-center gap-2 bg-white text-gray-700 text-sm font-semibold px-5 py-1 rounded-lg border border-gray-300 shadow-sm transition duration-300 hover:bg-[#EFED3C] hover:text-[#000000CC] hover:shadow-lg"><img src="/static/icons/home.png" class="w-5 h-5" alt="Home"></a>
+            <a href="/anime" data-i18n="nav.anime" class="nav-item bg-white text-gray-700 text-sm font-semibold px-5 py-1 rounded-lg border border-gray-300 shadow-sm transition duration-300 hover:bg-[#EFED3C] hover:text-[#000000CC] hover:shadow-lg">Anime</a>
+            <a href="/game" data-i18n="nav.game" class="nav-item bg-white text-gray-700 text-sm font-semibold px-5 py-1 rounded-lg border border-gray-300 shadow-sm transition duration-300 hover:bg-[#EFED3C] hover:text-[#000000CC] hover:shadow-lg">Game</a>
+            <a href="/geek" data-i18n="nav.geek" class="nav-item bg-white text-gray-700 text-sm font-semibold px-5 py-1 rounded-lg border border-gray-300 shadow-sm transition duration-300 hover:bg-[#EFED3C] hover:text-[#000000CC] hover:shadow-lg">Geek</a>
+            <a href="/event" data-i18n="nav.event" class="nav-item bg-white text-gray-700 text-sm font-semibold px-5 py-1 rounded-lg border border-gray-300 shadow-sm transition duration-300 hover:bg-[#EFED3C] hover:text-[#000000CC] hover:shadow-lg">Event</a>
+            <div class="relative">
+                <button id="langBtn" class="nav-item bg-white flex items-center justify-center text-gray-700 text-sm font-semibold px-3 py-1 rounded-lg border border-gray-300 shadow-sm transition duration-300 hover:bg-[#EFED3C] hover:text-[#000000CC] hover:shadow-lg">
+                    <img src="/static/icons/translate.png" class="w-5 h-5" alt="Translate">
+                </button>
+                <div id="langDropdown" class="hidden absolute right-0 mt-2 w-44 bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-200">
+                    <button data-lang="id" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-100 transition"><img src="/static/icons/indonesia.png" class="w-6 h-4"><span class="text-gray-700 font-medium">Indonesia</span></button>
+                    <button data-lang="en" class="w-full flex items-center gap-3 px-4 py-2 border-t hover:bg-gray-100 transition"><img src="/static/icons/united_kingdom.png" class="w-6 h-4"><span class="text-gray-700 font-medium">English</span></button>
+                    <button data-lang="ja" class="w-full flex items-center gap-3 px-4 py-2 border-t hover:bg-gray-100 transition"><img src="/static/icons/japan.png" class="w-6 h-4"><span class="text-gray-700 font-medium">Japanese</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mobile-menu-backdrop" class="hidden fixed inset-0 bg-black/60 z-[60] transition-opacity duration-300 backdrop-blur-sm"></div>
+
+    <div id="mobile-menu" class="fixed top-0 right-0 h-[100dvh] w-[80%] max-w-[320px] bg-white z-[70] transform translate-x-full transition-transform duration-300 shadow-2xl flex flex-col">
+        
+        <div class="flex-none flex justify-between items-center p-5 border-b border-gray-100 bg-white z-10">
+            <span class="text-xs font-bold text-gray-400 tracking-widest">MENU</span>
+            <button id="close-menu-btn" class="bg-[#EFED3C] text-black p-2 rounded-md shadow-sm hover:scale-105 transition focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <div class="flex-1 min-h-0 overflow-y-auto px-6 py-6 pb-40">
+            
+            <div class="mb-8">
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-4">Category</p>
+                <div class="flex flex-col gap-3">
+                    <a href="/" class="nav-item-mobile block w-full bg-white border border-gray-200 rounded-xl py-3 px-4 text-left shadow-sm font-bold text-gray-700 hover:bg-gray-50 transition">Home</a>
+                    <a href="/anime" class="nav-item-mobile block w-full bg-white border border-gray-200 rounded-xl py-3 px-4 text-left shadow-sm font-bold text-gray-700 hover:bg-gray-50 transition">Anime</a>
+                    <a href="/game" class="nav-item-mobile block w-full bg-white border border-gray-200 rounded-xl py-3 px-4 text-left shadow-sm font-bold text-gray-700 hover:bg-gray-50 transition">Game</a>
+                    <a href="/geek" class="nav-item-mobile block w-full bg-white border border-gray-200 rounded-xl py-3 px-4 text-left shadow-sm font-bold text-gray-700 hover:bg-gray-50 transition">Geek</a>
+                    <a href="/event" class="nav-item-mobile block w-full bg-white border border-gray-200 rounded-xl py-3 px-4 text-left shadow-sm font-bold text-gray-700 hover:bg-gray-50 transition">Event</a>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-100 pt-6">
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-4">Translation</p>
+                
+                <div class="flex flex-col gap-3">
+                    
+                    <button data-lang="id" class="flex items-center gap-3 w-full p-3 bg-white border border-gray-200 rounded-xl hover:border-[#EFED3C] transition group shadow-sm">
+                        <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shadow-inner flex-shrink-0">
+                            <img src="/static/icons/indonesia.png" class="w-5 h-auto rounded-sm">
+                        </div>
+                        <span class="text-sm font-semibold text-gray-600 group-hover:text-black">Indonesia</span>
+                    </button>
+
+                    <button data-lang="en" class="flex items-center gap-3 w-full p-3 bg-white border border-gray-200 rounded-xl hover:border-[#EFED3C] transition group shadow-sm">
+                        <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shadow-inner flex-shrink-0">
+                            <img src="/static/icons/united_kingdom.png" class="w-5 h-auto rounded-sm">
+                        </div>
+                        <span class="text-sm font-semibold text-gray-600 group-hover:text-black">English</span>
+                    </button>
+
+                    <button data-lang="ja" class="flex items-center gap-3 w-full p-3 bg-white border border-gray-200 rounded-xl hover:border-[#EFED3C] transition group shadow-sm">
+                        <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shadow-inner flex-shrink-0">
+                            <img src="/static/icons/japan.png" class="w-5 h-auto rounded-sm">
+                        </div>
+                        <span class="text-sm font-semibold text-gray-600 group-hover:text-black">Japanese</span>
+                    </button>
+                    <div class="h-32 w-full flex-shrink-0"></div>
+                    <!-- <button class="flex items-center gap-3 w-full p-3 bg-white border border-gray-200 rounded-xl hover:border-[#EFED3C] transition group shadow-sm">
+                        <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shadow-inner flex-shrink-0">
+                            <img src="/static/icons/united_kingdom.png" class="w-5 h-auto rounded-sm">
+                        </div>
+                        <span class="text-sm font-semibold text-gray-600 group-hover:text-black">English</span>
+                    </button> -->
+
+                    <!-- <button class="flex items-center gap-3 w-full p-3 bg-white border border-gray-200 rounded-xl hover:border-[#EFED3C] transition group shadow-sm">
+                        <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shadow-inner flex-shrink-0">
+                            <img src="/static/icons/japan.png" class="w-5 h-auto rounded-sm">
+                        </div>
+                        <span class="text-sm font-semibold text-gray-600 group-hover:text-black">Japanese</span>
+                    </button>  -->
+
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</nav>
