@@ -30,10 +30,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-jzfrxv-pe_#sgxnx2k5u4urb$!j*+$_9w4m_y0&5#t8bi)26(9'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-jzfrxv-pe_#sgxnx2k5u4urb$!j*+$_9w4m_y0&5#t8bi)26(9')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+# TinyMCE API Key from environment
+TINYMCE_API_KEY = os.getenv('TINYMCE_API_KEY', '')
 
 def _env_list(name, default_list):
     raw_value = os.getenv(name)
@@ -104,6 +107,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'Article.context_processors.language_context',
+                'DashboardAdmin.context_processors.tinymce_api_key',
             ],
         },
     },
