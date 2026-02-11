@@ -13,12 +13,20 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
-# Load environment variables from .env file
+# Load environment variables from .env files
 try:
     from dotenv import load_dotenv
-    env_file = Path(__file__).resolve().parent.parent / 'docker-file' / '.env'
-    if env_file.exists():
-        load_dotenv(env_file)
+    docker_env = Path(__file__).resolve().parent.parent / 'docker-file' / '.env'
+    local_env = Path(__file__).resolve().parent.parent / '.env.local'
+    
+    # Load docker .env first (if exists)
+    if docker_env.exists():
+        load_dotenv(docker_env, override=False)
+    
+    # Only load .env.local if NOT running in Docker container
+    # Detect Docker by checking if /.dockerenv file exists
+    if not Path('/.dockerenv').exists() and local_env.exists():
+        load_dotenv(local_env, override=True)
 except ImportError:
     pass
 
@@ -29,11 +37,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-jzfrxv-pe_#sgxnx2k5u4urb$!j*+$_9w4m_y0&5#t8bi)26(9')
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'False').lower() in ('true', '1', 'yes')
+
+# SECURITY WARNING: keep the secret key used in production secret!
+# When running in development (`DEBUG=True`) allow a fallback secret so
+# developers can run the project locally without setting environment vars.
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    if DEBUG:
+        # Insecure fallback for local development only
+        SECRET_KEY = 'dev-insecure-secret-key-change-me'
+    else:
+        raise ValueError("DJANGO_SECRET_KEY environment variable is not set!")
 
 # TinyMCE API Key from environment
 TINYMCE_API_KEY = os.getenv('TINYMCE_API_KEY', '')
@@ -84,11 +100,13 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'Article.middleware.NgrokHostMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'DashboardAdmin.security_middleware.SecurityHeadersMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'DashboardAdmin.security_middleware.LoginRateLimitMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'Article.middleware.LanguageMiddleware',
@@ -192,12 +210,137 @@ INTERNAL_IPS = ["127.0.0.1"]
 # Arahkan user yang belum login ke view 'login' milik aplikasi DashboardAdmin
 LOGIN_URL = 'DashboardAdmin:login'
 
-# CORS
-# Untuk development cepat Anda bisa mengizinkan semua origin.
-# Untuk produksi, ganti dengan `CORS_ALLOWED_ORIGINS` yang spesifik.
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS Configuration
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = _env_list(
+        'CORS_ALLOWED_ORIGINS',
+        []
+    )
+
+# Security Settings for Production
+if not DEBUG:
+    # HTTPS/SSL Settings
+    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True').lower() in ('true', '1', 'yes')
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    
+    # Cookie Security
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    
+    # Security Headers
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+    X_FRAME_OPTIONS = 'DENY'
+    
+    # Additional Security
+    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+else:
+    # Development settings
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+
+# File Upload Settings
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+FILE_UPLOAD_PERMISSIONS = 0o644
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
+
+# Allowed file extensions for uploads
+ALLOWED_IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg']
+MAX_UPLOAD_SIZE = 5242880  # 5MB
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Logging Configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'django.log',
+            'maxBytes': 1024 * 1024 * 10,  # 10MB
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+        'security_file': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'security.log',
+            'maxBytes': 1024 * 1024 * 10,  # 10MB
+            'backupCount': 5,
+            'formatter': 'verbose',
+            'filters': ['require_debug_false'],
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.security': {
+            'handlers': ['security_file', 'console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['file', 'console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}
+
+# Create logs directory if it doesn't exist
+import os
+logs_dir = BASE_DIR / 'logs'
+if not os.path.exists(logs_dir):
+    os.makedirs(logs_dir)
+
+# Admin URL Security
+# Change this to something unique in production
+ADMIN_URL = os.getenv('ADMIN_URL', 'admin/')
+
+# Session Security
+SESSION_COOKIE_AGE = 3600  # 1 hour
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

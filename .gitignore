@@ -3,6 +3,7 @@
 *.env
 .env.local
 .env.*.local
+!.env.production.template
 
 # Python
 *.py[cod]
@@ -19,6 +20,8 @@ db.sqlite3
 db.sqlite3-journal
 media/
 staticfiles/
+logs/
+*.log.*
 
 # Virtual Environment
 venv/
@@ -56,3 +59,10 @@ tmp/
 # OS
 Thumbs.db
 .DS_Store
+# Docker & Deployment
+docker-file/certbot/
+docker-file/ssl/
+*.sql
+*.sql.gz
+backup_*.sql
+nginx.conf.backup

@@ -18,12 +18,14 @@ from django.views.decorators.http import require_POST
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.conf import settings
+from django.core.exceptions import ValidationError
 import os
 import re
 from .forms import SiteSettingForm
 from .models import SiteSetting
 from django.db.models import Q
 from django.utils.html import strip_tags
+from .security_utils import validate_image_file, sanitize_filename
 
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
@@ -255,16 +257,24 @@ def upload_image(request):
     if not upload:
         return JsonResponse({'error': 'No file uploaded'}, status=400)
 
+    # Validate uploaded file
+    try:
+        validate_image_file(upload)
+    except ValidationError as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+    # Sanitize filename
+    safe_filename = sanitize_filename(upload.name)
+    
     # Create a safe path under MEDIA_ROOT/articles/
     upload_dir = 'articles'
-    filename = upload.name
     # ensure unique filename
-    base, ext = os.path.splitext(filename)
+    base, ext = os.path.splitext(safe_filename)
     counter = 0
     dest_name = f"{base}{ext}"
     while default_storage.exists(os.path.join(upload_dir, dest_name)):
         counter += 1
-        dest_name = f"{base}-{counter}{ext}"
+        dest_name = f"{base}_{counter}{ext}"
 
     path = default_storage.save(os.path.join(upload_dir, dest_name), ContentFile(upload.read()))
     try:
