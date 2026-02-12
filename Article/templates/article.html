@@ -31,8 +31,8 @@
     
     <style>
         /* Force list styles to display - CRITICAL for numbered/bulleted lists */
-        article.non-prose ol,
-        .non-prose ol {
+        article.prose ol,
+        .prose ol {
             list-style-type: decimal !important;
             margin-left: 2em !important;
             margin-top: 1em !important;
@@ -40,8 +40,8 @@
             padding-left: 0.5em !important;
         }
 
-        article.non-prose ul,
-        .non-prose ul {
+        article.prose ul,
+        .prose ul {
             list-style-type: disc !important;
             margin-left: 2em !important;
             margin-top: 1em !important;
@@ -49,83 +49,32 @@
             padding-left: 0.5em !important;
         }
 
-        article.non-prose li,
-        .non-prose li {
+        article.prose li,
+        .prose li {
             display: list-item !important;
             margin-top: 0.5em !important;
             margin-bottom: 0.5em !important;
         }
 
         /* Nested lists */
-        article.non-prose ol ol,
-        .non-prose ol ol {
+        article.prose ol ol,
+        .prose ol ol {
             list-style-type: lower-alpha !important;
         }
 
-        article.non-prose ol ol ol,
-        .non-prose ol ol ol {
+        article.prose ol ol ol,
+        .prose ol ol ol {
             list-style-type: lower-roman !important;
         }
 
-        article.non-prose ul ul,
-        .non-prose ul ul {
+        article.prose ul ul,
+        .prose ul ul {
             list-style-type: circle !important;
         }
 
-        article.non-prose ul ul ul,
-        .non-prose ul ul ul {
+        article.prose ul ul ul,
+        .prose ul ul ul {
             list-style-type: square !important;
-        }
-
-        /* Allow embeds to display without being cut off */
-        article.non-prose {
-            overflow: visible;
-        }
-
-        /* Ensure iframes and embeds fit the article width without cropping */
-        article.non-prose iframe {
-            max-width: 100% !important;
-            width: 100% !important;
-            height: auto;
-        }
-
-        /* Twitter embed: keep readable size within article width */
-        article.non-prose .twitter-tweet {
-            max-width: 550px !important;
-            width: 100% !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-        }
-
-        /* Instagram embed */
-        article.non-prose .instagram-media {
-            max-width: 540px !important;
-            width: 100% !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-        }
-
-        /* TikTok embed */
-        article.non-prose .tiktok-embed {
-            max-width: 605px !important;
-            width: 100% !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-        }
-
-        /* Embed wrapper divs */
-        article.non-prose > div[class*="aspect"],
-        article.non-prose > div[class*="embed"],
-        article.non-prose > div[class*="w-full"] {
-            max-width: 100% !important;
-            width: 100% !important;
-            overflow: visible !important;
-        }
-
-        /* Ensure nested iframes inside wrappers are responsive */
-        article.non-prose div > iframe {
-            width: 100% !important;
-            max-width: 100% !important;
         }
     </style>
 </head>
@@ -305,7 +254,7 @@
                 </div>
             </div>
 
-            <article class="not-prose prose-lg max-w-none text-gray-700 leading-loose font-poppins md:prose-xl break-long-words">
+            <article class="prose prose-lg max-w-none text-gray-700 leading-loose font-poppins md:prose-xl break-long-words">
                 {# NOTE: content is already processed with autoembed filter in the view #}
                 {{ content|safe }}
             </article>
@@ -387,65 +336,107 @@
     <script>
     // Append article link when user copies text from the article content
     (function(){
-        document.addEventListener('copy', function(e){
-            try {
-                const articleEl = document.querySelector('article.non-prose');
-                if (!articleEl) return; // nothing to do
+        // Wait for DOM to be fully loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCopyLink);
+        } else {
+            initCopyLink();
+        }
 
-                const sel = window.getSelection();
-                if (!sel || sel.isCollapsed) return; // no selection
+        function initCopyLink() {
+            document.addEventListener('copy', function(e){
+                try {
+                    // Try multiple selectors to find article element
+                    const articleEl = document.querySelector('article.prose') || 
+                                     document.querySelector('article') ||
+                                     document.querySelector('.article-content') ||
+                                     document.querySelector('main');
+                    
+                    if (!articleEl) {
+                        console.log('Article element not found');
+                        return;
+                    }
 
-                // Check if selection is inside the article element
-                const range = sel.rangeCount ? sel.getRangeAt(0) : null;
-                if (!range) return;
-                const container = range.commonAncestorContainer;
-                if (!articleEl.contains(container)) return;
+                    const sel = window.getSelection();
+                    if (!sel || sel.isCollapsed) return; // no selection
 
-                const selectedText = sel.toString();
-                if (!selectedText.trim()) return;
+                    // Check if selection is inside the article element
+                    const range = sel.rangeCount ? sel.getRangeAt(0) : null;
+                    if (!range) return;
+                    
+                    const container = range.commonAncestorContainer;
+                    let isInArticle = false;
+                    
+                    // Check if container or any parent is the article element
+                    let node = container.nodeType === Node.TEXT_NODE ? container.parentNode : container;
+                    while (node && node !== document.body) {
+                        if (node === articleEl) {
+                            isInArticle = true;
+                            break;
+                        }
+                        node = node.parentNode;
+                    }
+                    
+                    if (!isInArticle) {
+                        console.log('Selection not in article');
+                        return;
+                    }
 
-                const pageUrl = window.location.href;
-                const attribution = `\n\nBaca selengkapnya di: ${pageUrl}`;
+                    const selectedText = sel.toString().trim();
+                    if (!selectedText || selectedText.length < 5) return;
 
-                // Prevent default copy and set our own clipboard data
-                e.preventDefault();
-                if (e.clipboardData) {
-                    e.clipboardData.setData('text/plain', selectedText + attribution);
-                    // also set a basic HTML version
-                    const html = (selectedText.replace(/\n/g, '<br>')) + `<br><br><a href="${pageUrl}">Baca selengkapnya</a>`;
-                    e.clipboardData.setData('text/html', html);
-                } else if (window.clipboardData) {
-                    // IE fallback
-                    window.clipboardData.setData('Text', selectedText + attribution);
+                    const pageUrl = window.location.href;
+                    const attribution = `\n\nBaca selengkapnya di: ${pageUrl}`;
+
+                    // Prevent default copy and set our own clipboard data
+                    e.preventDefault();
+                    
+                    const textToCopy = selectedText + attribution;
+                    
+                    if (e.clipboardData) {
+                        e.clipboardData.setData('text/plain', textToCopy);
+                        // also set a basic HTML version
+                        const html = selectedText.replace(/\n/g, '<br>') + 
+                                    `<br><br>Baca selengkapnya di: <a href="${pageUrl}">${pageUrl}</a>`;
+                        e.clipboardData.setData('text/html', html);
+                    } else if (window.clipboardData) {
+                        // IE fallback
+                        window.clipboardData.setData('Text', textToCopy);
+                    }
+                    
+                    console.log('Copy with link attribution successful');
+                } catch (err) {
+                    console.error('copy-attribution error:', err);
                 }
-            } catch (err) {
-                // fail silently
-                console.warn('copy-attribution error', err);
-            }
-        });
+            });
+        }
     })();
     </script>
     <!-- Normalize YouTube embed iframes inserted by autoembed: add enablejsapi and origin; add retry fallback attempts -->
     <script>
-    // YouTube embed normalization disabled - let YouTube work natively
-    /*
     window.initArticleYouTubeEmbeds = function(){
         try {
             console.log('[initArticleYouTubeEmbeds] Starting...');
             const managed = [];
-            const iframes = document.querySelectorAll('article.non-prose iframe[src*="youtube.com/embed/"]');
+            const iframes = document.querySelectorAll('article.prose iframe[src*="youtube.com/embed/"]');
             console.log('[initArticleYouTubeEmbeds] Found', iframes.length, 'YouTube iframes');
             iframes.forEach((iframe, idx) => {
                 try {
                     const src = iframe.getAttribute('src') || '';
                     console.log(`[initArticleYouTubeEmbeds] iframe[${idx}] src:`, src);
-                    
-                    // Don't modify the iframe src - just prepare for error handling
+                    const url = new URL(src, location.href);
+                    // normalize query params
+                    url.searchParams.set('enablejsapi','1');
+                    url.searchParams.set('rel','0');
+                    url.searchParams.set('modestbranding','1');
+                    url.searchParams.set('origin', location.origin);
+                    // write back
+                    iframe.src = url.toString();
+                    console.log(`[initArticleYouTubeEmbeds] iframe[${idx}] updated src:`, iframe.src);
                     iframe.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
                     iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
 
                     // extract vid
-                    const url = new URL(src, location.href);
                     const m = url.pathname.match(/embed\/([^/?]+)/);
                     if (m && m[1]) {
                         iframe.dataset.youtubeVid = m[1];
@@ -463,8 +454,90 @@
                 return;
             }
 
-            // Just log success - don't load YouTube Player API or modify iframes
-            console.log('[initArticleYouTubeEmbeds] YouTube iframes initialized successfully. Skipping Player API.');
+            // prepare retry loader for each iframe
+            function makePlayerFor(iframe) {
+                try {
+                    const vid = iframe.dataset.youtubeVid;
+                    if (!vid) return;
+                    const baseEmbed = `https://www.youtube.com/embed/${vid}`;
+                    const originParam = encodeURIComponent(location.origin);
+                    const altSrcs = [
+                        baseEmbed + `?enablejsapi=1&rel=0&modestbranding=1&origin=${originParam}`,
+                        baseEmbed + `?enablejsapi=1&rel=0&modestbranding=1`,
+                        `https://www.youtube-nocookie.com/embed/${vid}?enablejsapi=1&rel=0&modestbranding=1`
+                    ];
+
+                    function attempt(index) {
+                        try {
+                            iframe.src = altSrcs[index];
+                            iframe.dataset.attempt = index;
+                            if (!iframe.id) iframe.id = 'yt-embed-' + Math.random().toString(36).slice(2,8);
+                            console.log(`[initArticleYouTubeEmbeds] ${iframe.id} attempt ${index}:`, iframe.src);
+                            // try to create player
+                            try {
+                                new YT.Player(iframe.id, {
+                                    events: {
+                                                onError: function(e) {
+                                                            const code = e && e.data;
+                                                            console.warn('YouTube player onError', code, 'attempt', index);
+                                                            // quickly bail out for embed-blocking codes; do not show fallback image
+                                                                if ([101,150,153].includes(code)) { console.warn('embed blocked; showing thumbnail fallback', code); showFallback(); return; }
+                                                            const next = (parseInt(iframe.dataset.attempt||0) || 0) + 1;
+                                                            if (next < altSrcs.length) setTimeout(function(){ attempt(next); }, 250);
+                                                            else console.warn('player failed after attempts; no fallback shown');
+                                                        }
+                                    }
+                                });
+                            } catch (errPlayer) {
+                                console.warn('player init failed', errPlayer);
+                                const next = (parseInt(iframe.dataset.attempt||0) || 0) + 1;
+                                if (next < altSrcs.length) attempt(next);
+                                else showFallback();
+                            }
+                        } catch(e){ showFallback(); }
+                    }
+
+                    function showFallback(){
+                        try {
+                            var vid = iframe.dataset.youtubeVid;
+                            if(!vid){
+                                var m = (iframe.src || '').match(/embed\/([^/?]+)/);
+                                vid = m && m[1];
+                            }
+                            if(!vid) return;
+                            var wrapper = iframe.parentNode;
+                            var thumb = document.createElement('div');
+                            thumb.className = 'youtube-fallback';
+                            thumb.innerHTML = '<a href="https://www.youtube.com/watch?v=' + vid + '" target="_blank" rel="noopener">' +
+                                '<img src="https://img.youtube.com/vi/' + vid + '/hqdefault.jpg" alt="YouTube video" class="w-full h-auto rounded"/>' +
+                                '</a>';
+                            // replace the iframe container with the thumbnail link
+                            if(wrapper && wrapper.parentNode){
+                                wrapper.parentNode.replaceChild(thumb, wrapper);
+                            }
+                        } catch(err){ console.warn('showFallback error', err); }
+                    }
+
+                    attempt(0);
+                } catch(err){ console.warn('makePlayerFor error', err); }
+            }
+
+            // load YT API if needed
+            if (!window.YT || !window.YT.Player) {
+                console.log('[initArticleYouTubeEmbeds] Loading YouTube Player API...');
+                const tag = document.createElement('script');
+                tag.src = 'https://www.youtube.com/iframe_api';
+                const firstScriptTag = document.getElementsByTagName('script')[0];
+                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            }
+
+            window.onYouTubeIframeAPIReady = function() {
+                console.log('[initArticleYouTubeEmbeds] YouTube API ready, initializing players...');
+                managed.forEach((iframe, idx) => {
+                    console.log(`[initArticleYouTubeEmbeds] Initializing player ${idx}...`);
+                    makePlayerFor(iframe);
+                });
+            };
 
         } catch (err) {
             console.warn('normalize article youtube iframes failed', err);
@@ -473,9 +546,7 @@
     
     // Call on initial page load - needed for YouTube embeds to work properly
     window.initArticleYouTubeEmbeds();
-    console.log('[article.html] YouTube iframes initialized for initial page load');
-    */
-    console.log('[article.html] YouTube embeds running natively without JavaScript modification');
+    console.log('[article.html] YouTube Player API initialized for initial page load');
     
     <!-- Position left/right ad asides beside the centered article container -->
 
